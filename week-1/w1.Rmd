@@ -1,0 +1,125 @@
+
+# Survival Analysis
+
+It is also called _time-to-event_ analysis
+
+events:
+  - patient events/outcome (death or [nonfatal outcomes] hospital readmission, etc)
+  - study participants 
+      - lost to follow-up in a study
+      - censored = participant dropped out of study
+      
+methods:
+  - logistic regression (binary events). Interested in whether outcome happens (when does not matter)
+  - survival analysis interested in if outcome happened, how long it took for that outcome to occur {time to event}
+  
+
+if developed a disease, what statistic would determine how long to live and chances of surviving
+the Kaplan-Meier plot and Log-rank test answer these
+
+TNM staging system 
+t = size of tumor, lymph nodes involved
+m = describes distant metasis spread to other body parts 
+
+
+## Life tables
+
+Life tables are used to measure the probability of death at a given age and the life expectancy at varying ages.
+
+
+types:
+
+- cohort (generational) life table
+- current or period life table
+
+Cohort life tables take an actual set of people born at the same time, usually in the same year or even on the same day of the same year, and follow them up for their whole lives.
+
+Period life tables take a hypothetical cohort of people born at the same time and uses the assumption that they are subject to the age-specific mortality rates of a region or country. These rates are often calculated using census data as the base population and actual age-specific death rates during the census year (and typically also one year either side).
+
+
+| Time (t) days     | patients alive at _t_ | patients who died at  _t_ | Probability: past time _t_ |
+|-------------------|-----------------------|---------------------------|----------------------------|
+| 0 (study start)   |   100                 | 0                         |       1                    |
+| 1                 |   100                 | ?                         |   ?                        |
+
+people drop out of studies or 'lost to follow up' (*censored*)
+
+
+
+Calculate a Kaplan-Meier table
+
+The plot of the survival function versus time is called the survival curve.
+
+The Kaplan-Meier method can be used to estimate this curve from the observed survival times without the assumption of an underlying probability distribution.
+
+Example [Survival Analysis](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1065034/)
+
+```{r}
+table1 = data.frame(
+  patient_number = 1:15,
+  survival_time_days = c(1,1,4,5,6,8,9,9,12,15,22,25,37,55,72),
+  outcome = c('died','died','died','died','unknown',
+              'died','survived','died','died','unknown',
+              'died','survived','died','died','survived'),
+  treatment = c(2,2,2,2,2,1,2,2,1,1,2,1,1,1,1),
+  age_yrs = c(75,79,85,76,66,75,72,70,71,73,66,73,68,59,61)
+)
+
+table1
+
+```
+
+
+| time (t) days | event                     |
+|---------------|---------------------------|
+| 0 start       | 8 patients recruited      |
+| 1             | 2 patients die            |
+| 4             | 1 patient dies            |
+| 5             | 1 patient dies            |
+etc
+
+compute the probability of survival past time t,
+the probability of surviving past day t is simply the probability of surviving past day t-1 times the proportion of patients that survive on day t.
+
+| Time (t) days     | alive at _t_ | died at  _t_ | Proportion: past time _t_  | Probability: past _t_|
+|-------------------|--------------|--------------|----------------------------|----------------------|
+| 0 (study start)   | 8            | 0            |  (8-0)/8 = 1               | 1                    |
+| 1                 | 8            | 2            | (8-2)/8 = 0.75             | 1 * 0.75             |
+| 4                 | 6            | 1            | (6-1)/6 = 0.83             | 0.75 * 0.83 = 0.623  |
+| 5                 | 5            | 1            | (5-1)/5 = 0.80             | 0.623 * 0.80 = 0.498 |
+
+
+```{r}
+library(tidyverse)
+
+df = data.frame(
+  probability_of_survival = c(1, 0.75, 0.623, 0.498),
+  survival_time_days = c(0,1,4,5)
+)
+
+ggplot2::ggplot(df, aes(x=survival_time_days, y= probability_of_survival))+geom_point()
+
+```
+
+
+
+if you connect the dots it would result in steps
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
