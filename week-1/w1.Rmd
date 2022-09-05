@@ -109,6 +109,51 @@ if you connect the dots it would result in steps
 
 
 
+## data
+
+The data are simulated based on real hospital administrative data for England called Hospital Episodes Statistics. Your simulated extract contains a random sample of emergency (unplanned) admissions for heart failure (ICD10 code I50).
+
+1 indicates that the patient had it recorded
+
+data dictionary :
+
+- death
+- los (hospital length of stay)
+- age (years)
+- gender binary (1=m, 2=f)
+- cancer
+- cabg
+- crt (cardiac resynchronization device)
+- defib (implant)
+- dementia
+- diabetes (all types)
+- hyptertension
+- ihd (ischemic heart disease)
+- mental health
+- arrhythmias
+- copd
+- obesity
+- pvd
+- renal idease
+- vulvular disease (heart valves)
+- metastatic cancer
+- pacemaker
+- prior appts attented (outpatient appointments attended in previous year)
+- prior dnas (outpatient appointments misses in previous year)
+- pci percutaneous coronary intervention
+- stroke
+- senile
+- quintile (socioeconomic status: 1 (affluent) to 5 (poor))
+- ethnic group (1=white, 2=black, 3= Indian subcontinent, 8= unknown, 9= other)
+- fu time (follow up time)
+
+
+
+```{r}
+df = read_csv('./COURSERA-data.csv')
+
+glimpse(df)
+```
 
 
 
