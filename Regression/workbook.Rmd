@@ -6,3 +6,41 @@ Question: _is lung function a predictor of quality of life ?_
 model = Linear Regression
 outcome = quality of life
 
+SGRQ = alpha + beta * FEV1
+
+```{r}
+library(tidyverse)
+
+COPD = read_csv('./COURSERA-copd.csv')
+
+# glimpse(COPD)
+
+# variables are SGRQ (quality of life) and FEV1
+
+SGRQ_FEV1 = lm(SGRQ ~ FEV1, data = COPD)
+SGRQ_FEV1
+```
+
+FEV1 (beta) for 1 unit (litre per second) increase, it is estimated that the quality of life decreases by 8.226 units
+
+SGRQ = 53.378 - 8.22 * FEV1
+
+```{r}
+summary(SGRQ_FEV1)
+```
+
+```{r}
+confint(SGRQ_FEV1)
+```
+
+
+
+
+
+
+
+
+
+
+
+
