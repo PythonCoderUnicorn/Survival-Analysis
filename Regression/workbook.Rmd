@@ -1,0 +1,8 @@
+
+# workbook
+
+Question: _is lung function a predictor of quality of life ?_
+
+model = Linear Regression
+outcome = quality of life
+

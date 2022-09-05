@@ -1,0 +1,156 @@
+
+# Regression
+
+Public Health research models, estimation or abservation.
+
+Evaluation = the focus on obtaining an estimate for that treatment or exposure that has been adjusted for all other variables
+
+Understanding the cause of the disease, the interest in all regression estimates and their relationship with the outcome
+
+prediction is prognosis & diagnosis 
+
+Framingham Risk Score, predict 10 year risk for cardiovascular event 
+
+important to know your data before you start any analysis, then after fitting a model you check the assumptions you made
+
+
+
+## Pearson's Correlation 
+
+Correlation is a method of analysis that allows us to assess the degree of association between 2 variables
+
+Linear Regression differs from correlation as it allows us to predict the value of 1 variable from another
+
+Pearson's coefficient (r) 
+
+  - measure of the degree of straight line association between variables,
+  - a LINEAR trend line on a plot
+  - `r` values -1 to +1 
+  - `0.7` = strong correlation (dots land on a line moreorless)
+  - `0.5` moderate correlation
+  - `0.3` weak correlation
+  - `0.0` no correlation
+
+Question: _is there an association between lung function and quality of life in patients with COPD?_
+
+FEV1 = forced expiratory volume. the amount of air measured in litres that a person can exhale in a second
+
+
+for correlations what is plotted on x or y axis does not matter
+for linear regressions plot the outcome variable on the y-axis
+
+
+requirenments:
+
+- both variables are continuous
+- observations are a random sample from the population
+- both variables should be approx normal distribution in the population
+
+
+in example, r = 0.32, CI 95% (-0.49 to -0.12), p-value = 0.002
+
+p-value is low so reject null hypothesis 
+
+
+
+```{r}
+# covariance measure the strength and direction of the relationship betweeb 2 variables
+# pearson_correlation = covariance(x,y) / std(x) * std(y)
+```
+
+
+
+## Spearman Correlation
+
+A non-parametric (make no assumptions around the data). Spearman correlation measures the strength of a monotonic relationship (dependent variable {y} never decreases as indep variable {x} increases, diagonal line up / down or arc upwards or hockey stick)
+
+Spearman requires:
+
+- a monotonic relationship between variables
+- 1 or both variables are ordinal or continuous
+- random sample from the population
+
+Spearman has rank values 
+
+
+
+## Linear Regression
+
+Linear regression is an analysis method used when an outcome of interest is continuous
+and allows to decribe & quantify the elationship between 2 variables
+
+outcome variable (dep) is always on the y-axis and 
+the predictor (indep) is on the x-axis
+
+
+Least Squares Regression (Residual Sum of Squares) is the line that minimizes the sum of the squared vertical distances between observed value and fitted line, the distances are call residuals.
+
+`y = intercept + slope of line * x`
+
+alpha is where line crosss the y-axis
+beta is the slope of the line
+
+example: is height associated with increase in increase of lung capacity
+          FEV1 = alpha + beta * height
+          alpha estimated to be -9.2 and beta = 0.07
+          FEV1 = -9.2 + 0.07 * height
+          
+  beta shows how much on average the outcome variable increases for 1 unit increase in the x variable
+  meaning: 1 cm increase in height, a change in FEV1 of 0.07 L/s takes place
+
+
+
+can do linear regression on gender & lung function (continuous, outcome)
+FEV1 = alpha + beta * gender
+     = 1.32 + (0.44) * gender
+     
+if gender is 0 (female) 
+beta is change in outcome for 1 unit increase in gender 
+
+
+
+
+
+## Linear Regression Model Assumptions
+
+3 key assumptions fitting a linear regression
+
+1. linearity between outcome Y an d predictor X
+2. outcome variable is normally distributed across predictor values
+3. variance of outcomes should be the same across predictor values
+
+examine the residuals of the model
+
+if all 3 assumptions are true,
+then the distribution of residuals will be normal with mean of 0
+and constant variance across the predictor values
+
+
+test the assumptions
+- assess residuals are normal distributed (histogram of residuals or Q-Q plot)
+
+
+Q-Q plot = quartiles of the residuals against theoretical norm distribution, if normal observations will land on a straight line
+
+
+r^2 = variance explained by the model / total variance
+
+r^2 is between 0 and 1
+
+example: r^2 = 0.15, means the regression line can explain only 15% of the total variance 
+
+careful for overfitting a model, use adjusted r^2 which penalizes the number of predictor variables in the model, use this to compare models
+
+
+
+
+
+
+
+
+
+
+
+
+
+
