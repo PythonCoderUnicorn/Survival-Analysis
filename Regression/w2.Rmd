@@ -1,1 +1,101 @@
 
+
+# Fitting Regression Models
+
+in the COPD dataset
+
+walking ability has variables `MWT1, MWT2, MWT1Best` which means 6 minute walking test, distance measured in meters in 6 minute duration
+
+look at the data, understand it, what types are the variables?
+
+```{r}
+library(tidyverse)
+
+COPD = read_csv('./COURSERA-copd.csv')
+
+glimpse(COPD)
+```
+
+look at the data
+
+```{r}
+hist(COPD$MWT1Best, breaks = 12)
+```
+
+the distribution looks symmetric, peaks between 400 and 500, have an outlier past 650
+
+
+`subset(COPD, COPD$MWT1Best > 650)` is the same as filter()
+
+```{r}
+COPD %>% 
+  filter(MWT1Best > 650)
+```
+
+
+look at another variable
+
+```{r}
+COPD %>% 
+  ggplot( aes(x= FEV1))+
+  geom_histogram(bins = 9)
+```
+
+
+Descriptive statistics and two-way plots can tell you more about the data. Useful statistics to summarise your data are: the mean, the standard deviation, the range, the median, and the inter-quartile range.
+
+```{r}
+
+skimr::skim(COPD$MWT1Best)
+```
+
+
+```{r}
+skimr::skim(COPD$FEV1)
+```
+
+
+```{r}
+COPD %>% 
+  select(FEV1, MWT1Best) %>% 
+  ggplot(
+    aes(x= FEV1, y= MWT1Best)
+  )+
+  geom_point()+
+  labs(x='FEV1', y='MWT1Best')+
+  ggdark::dark_theme_gray()
+```
+the scatterplot shows an even distribution, no outliers, so proceed with Pearson's correlation coefficient to assess a linear association between the two variables. But we will also have a look at the Spearman’s for comparison. 
+
+```{r}
+cor.test( COPD$FEV1, COPD$MWT1Best, use="complete.obs", method = 'pearson')
+```
+
+```{r}
+cor.test(COPD$FEV1, COPD$MWT1Best, use='complete.obs', method = 'spearman')
+```
+
+
+Pearson correlation = 0.4692142 
+        95% confidence interval =  between 0.3 to 0.6
+        p value is less than 0.001
+       strong evidence against the null 
+        
+        
+Spearman has similar results
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
