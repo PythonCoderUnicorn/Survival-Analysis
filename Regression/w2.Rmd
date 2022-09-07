@@ -91,6 +91,226 @@ Spearman has similar results
 
 
 
+and now with age and MWT1Best
+
+```{r}
+COPD %>% 
+  select(MWT1Best) %>% 
+  ggplot( aes(x= MWT1Best))+
+  geom_histogram( bins = 10)+
+  ggdark::dark_mode()
+```
+
+
+```{r}
+COPD %>% 
+  select(AGE) %>% 
+  ggplot( aes(x= AGE))+
+  geom_histogram( bins = 10)+
+  ggdark::dark_mode()
+```
+
+```{r}
+skimr::skim(COPD$AGE)
+
+```
+
+
+```{r}
+COPD %>% 
+  select(MWT1Best, AGE) %>% 
+  ggplot( aes(y= MWT1Best, x= AGE))+
+  geom_point()+
+  ggdark::dark_mode()
+```
+
+predictor variable on the x-axis and outcome on the y-axis
+
+
+Pearson's & Spearman's correlation
+```{r}
+cor.test(COPD$AGE, COPD$MWT1Best, use='complete.obs', method = 'pearson')
+
+cor.test(COPD$AGE, COPD$MWT1Best, use='complete.obs', method = 'spearman')
+```
+
+Pearson's correlation = -0.23,    p-value = 0.0212   
+Spearman's correlation = -0.269   p-value = 0.006
+
+reject the null hypothesis
+
+
+
+
+## Fitting a reression model
+
+quantify the relationship between lung function (FEV1) and walking distance (MWT1Best) in COPD patients
+
+linear regression : Y = $\alpha$ + $\beta_1$ * X + $\epsilon$
+
+Y = outcome (i.e. dependent) variable 
+X = predictor (i.e. independent) variable 
+
+α and β (alpha & beta) are parameters of the regression
+α = intercept (average Y when X=0), and 
+β = slope of the line (change in Y for a 1 unit increase in X). 
+ε (epsilon) is the random variation in Y, i.e. the residuals 
+
+Note: α and β are unit specific, so you’ll get different answers if you use distance in metres and in feet. 
+
+
+`lin_reg = lm( outcome ~ predictor, data= dataframe)`
+
+
+linear regression to check whether lung function is a predictor of walking distance in COPD patients
+
+```{r}
+outcome = COPD$MWT1Best # walking distance
+predictor = COPD$FEV1 # lung function
+
+lin_reg = lm(outcome ~ predictor, data =  COPD)
+
+summary( lin_reg)
+```
+
+
+to view the 9% confidence interval
+
+```{r}
+confint(lin_reg)
+```
+ 
+model plots
+
+```{r}
+plot(lin_reg)
+```
+
+
+predictor is the `FEV1` lung function = 74.11
+meaning for 1 unit increase in `FEV1` it is predicted that walking distance will increase by 74 meters
+
+95% Confidence Interval that the true population parameter is between 46 to 102 meters
+adjusted r^2 = 0.21, so the regression model can explain only 21% of variability in observations
+
+Q-Q plot, the data points land mostly on the horizontal line, meaning the assumptions of normality have been met
+
+residuals vs fitted plot is to assess the assumptions of constant variance, there is some evidence based on the heteroscedasticity (unequal variance of 1 variable across another variable), but looking for homoscedasticity (equal variance of 1 variable across another variable). check for constant variance.
+
+
+
+
+
+Age and walking distance in COPD patients
+
+```{r}
+walking_dist = COPD$MWT1Best
+age = COPD$AGE
+
+lin_reg2 = lm(walking_dist ~ age, data = COPD)
+
+summary(lin_reg2)
+confint(lin_reg2)
+```
+
+formula : alpha + beta * age
+alpha = 616.45
+beta = -3.10
+r^2 = 0.0529
+
+
+assumptions of a linear regression model are that: 
+
+  (1) there is linearity between the outcome and predictor variable; 
+  (2) that the outcome variable is normally distributed across values of the predictor; 
+  (3) that the variance of the outcome variable is constant across values of the predictor variable. 
+  
+```{r}
+predictedValues = predict(lin_reg2)
+# predictedValues
+
+residualValues = residuals(lin_reg2)
+# residualValues
+
+plot(lin_reg2)
+```
+
+
+```{r}
+plot(residualValues)
+```
+
+
+
+
+
+
+
+
+## Multiple Regression
+
+adjusted coefficients , the change in walking distance expected for 1 unit increase in FEV1 keeping age-health constant
+
+if predictors were independent then th estimates in model model would be the same as univariate model
+
+
+collinearity = when there is a strong linear association between 2 predictor variables in a model
+
+
+
+quantify the relationship between the lung function (FEV1), age, and walking distance (MWT1Best) in COPD patients
+
+
+multiple linear regression : Y = alpha + beta_1 * X_1 + beta_2 * X_2 + epsilon
+
+
+Y = outcome (i.e. dependent) variable. 
+X1 = first predictor (i.e. independent) variable. 
+X2 = second predictor (i.e. independent) variable. 
+
+alpha = intercept (average Y when X1=X2=0). Note: α is unit specific. 
+
+B1 = slope of the line (change in Y for a 1 unit increase in X1 when X2 is held constant). Note: β1 is unit specific. 
+Β2 = slope of the line (change in Y for a 1 unit increase in X2 when X1 is held constant). Note: β2 is unit specific. 
+
+epsilon = is the random variation in Y, i.e. the residuals. 
+
+
+`Model name <- lm( outcome ~ predictor1 + predictor2, data =dataframe)`
+
+
+```{r}
+walking_dist = COPD$MWT1Best # outcome var
+age = COPD$AGE  # predictor 1
+lung_function = COPD$FEV1 # predictor 2
+
+mult_reg = lm(walking_dist ~ lung_function + age, data =  COPD)
+
+summary(mult_reg)
+confint(mult_reg)
+```
+
+intercept == alpha
+lung function == beta_1
+age = beta_2
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
