@@ -136,6 +136,116 @@ head( lung[ , c('time','status','sex')])
 
 
 
+## Survival objects & curves
+
+The Kaplan-Meier method is the most common way to estimate survival times and probabilities. It is a non-parametric approach that results in a step function, where there is a step down each time an event occurs.
+
+
+There will be one entry for each subject that is the survival time, which is followed by a `+` if the `subject was censored`. Let’s look at the first 10 observations
+
+```{r}
+Surv(lung$time, lung$status)[1:10]
+```
+
+subject 1 had an event at time 306 days
+subject 2 had an event at time 455 days
+subject 3 was censored at time 1010 days
+
+
+The survfit() function creates survival curves using the Kaplan-Meier method based on a formula.
+
+```{r}
+surv_curv = survfit( Surv(time, status) ~ 1, data = lung)
+
+str(surv_curv)
+```
+
+time: the timepoints at which the curve has a step, (1+ event occurred)
+surv: the estimate of survival at the corresponding time
+
+
+## Kaplan-Meier plots
+
+The {ggsurvfit} package works best if you create the survfit object using the included ggsurvfit::survfit2() function, which uses the same syntax to what we saw previously with survival::survfit(). The ggsurvfit::survfit2() tracks the environment from the function call, which allows the plot to have better default values for labeling and p-value reporting.
+
+```{r, message=FALSE, error=FALSE}
+library(tidyverse)
+survfit2( Surv(time, status) ~ 1, data= lung) %>% 
+  ggsurvfit()+
+  ggplot2::labs(
+    x="Days", y="Overall survival probability"
+  )+
+  ggdark::dark_mode()+
+  add_confidence_interval()+ 
+  geom_ribbon(col='pink', alpha= 0.2)
+  # add_risktable( )
+```
+
+
+
+## Estimating Survival
+
+One quantity often of interest in a survival analysis is the probability of surviving beyond a certain number of years, x.
+
+remember that time in this dataset is in days
+
+```{r}
+summary( survfit( Surv(time, status) ~ 1, data = lung), times = 365.25)
+```
+
+We find that the 1-year probability of survival in this study is 41%.
+
+**caution**: ignoring censoring leads to overestimate of the survival probability
+
+
+
+```{r}
+survfit( Surv(time, status) ~ 1, data = lung) %>% 
+  tbl_survfit(
+    times = 365.25,
+    label_header = "**1-year survival (95% CI)**"
+  )
+```
+
+
+
+## Estimating median survival
+
+Another quantity often of interest in a survival analysis is the average survival time, which we quantify using the median. Survival times are not expected to be normally distributed so the mean is not an appropriate summary.
+
+```{r}
+survfit( Surv(time, status)  ~ 1, data = lung)
+```
+
+We see the median survival time is 310 days
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
