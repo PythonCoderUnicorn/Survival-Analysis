@@ -1,0 +1,34 @@
+
+# Understanding Regression Output
+
+
+```{r}
+library(tidyverse)
+
+# mtcars
+
+lin_reg = lm(mpg ~ wt, data = mtcars)
+
+# y-values = y-intercept + slope * x-values
+# mpg = y-intercept + slope * wt
+
+summary(lin_reg)
+
+```
+
+size = (intercept) + slope * wt
+size = 37.2851 + (-5.3445) * wt
+
+want wt p-value to be stat signif which it is
+
+
+
+
+
+
+
+
+
+
+
+
