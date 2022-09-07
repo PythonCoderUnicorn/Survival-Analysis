@@ -236,6 +236,14 @@ plot(lin_reg2)
 ```
 
 
+residual: observed value - predicted value
+
+normal Q-Q plot tells us if the residuals are normally distributed by comparing them with an actual normal distribution. focus on the center part where most of the data points should land, look at the points above or below the line at the tails. further away from line = more extreme the values in the data
+
+scale location plot show if the residuals are spread equally among our predictions in order to check homoscedasticity 
+
+residuals vs leverage plot shows influential data points that have a big effect on the linear model
+
 ```{r}
 plot(residualValues)
 ```
@@ -290,9 +298,23 @@ summary(mult_reg)
 confint(mult_reg)
 ```
 
+`residuals`: the difference between the observed & predicted values
+`residual mean` should be close to 0 (relative to data)
+`min & max (1Q & 3Q)` should be close in magnitude, no huge range
+
+`coefficient estimate` are used to predict the value of the response variable
+`std error` is avg amount that the estimate varies from actual value
+`t_value` = estimate / std. error
+`r^2` is the % of the data variance that could be explained by the model
+`adjusted r^2` controls for additional predictor added (prevent overfitting)
+`F-stat` indicates if the model as a whole is statistically significant
+
+
 intercept == alpha
 lung function == beta_1
 age = beta_2
+
+
 
 
 
