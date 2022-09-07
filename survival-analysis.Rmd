@@ -3,6 +3,7 @@ title: "Survival Analysis in R"
 output: 
   html_document:
     code_folding: show
+    toc: true
     theme:
       bg: "#202123"
       fg: "#B8BCC2"
@@ -27,18 +28,111 @@ Note:
 ## Intro to Survival Analysis
 
 
+Survival data are from _time-to-event_ data, with a `start` and `end` time.
+
+- time from surgery to death
+- time from treatment to progression
+
+Survival analysis is used in various fields, and has various names 
+[reliability, duration, event history, time-to-event] analysis
+
+**censoring** occurs if a subject has NOT experienced the event of interest by the end of data collection
+
+subject censoring may happen due to:
+
+  - loss to follow-up
+  - withdrawal from study
+  - no event by end of study
+
+these are _right censoring_
+
+![](images/study-design.png)
 
 
 
+## Variables & Formula
+
+The necessary variables in order to know :
+
+- $Y_i$ observed time
+- (delta_i) $\delta_i$ event indicator
+- subject $i$ 
+
+formula for observed time:
+
+- $T_i$= event time
+- $C_i$ = censoring time
+
+$Y_i$ = min($T_i$, $C_i$)
+
+event indicator:
+```
+if ( event time < censoring time)
+then delta_1 = 1
 
 
+if ( event time > censoring time)
+then delta_1 = 0
+```
+
+The probability that a subject will survive beyond any given specified time
+
+- $S(t)$ = survival function, conditional probability of surviving beyond that time, given that an individual has survived just prior to that time. 
+
+Survival probability is estimated as 
+`number of patients who are alive (no loss to follow-up at time)`
+/
+`number of patients who were alive just prior to that time`
+
+- $F(t)$ = $Pr(T <= t)$ cumulative distribution function
+
+$S(t)$ = $F(t)$ = $Pr(T <= t)$ = 1 - $F(t)$
+
+In theory the survival function is smooth; in practice we observe events on a discrete time scale.
 
 
+The **Kaplan-Meier** estimate of survival probability at a given time is the product of these conditional probabilities up until that given time.
+
+at time 0, survival probability = 1 $S(t_0)$ = 1
 
 
+## Packages
+
+```{r, warning=FALSE, message=FALSE}
+# install.packages(c("survival", "lubridate", "ggsurvfit", "gtsummary", "tidycmprsk"))
+# remotes::install_github("zabore/condsurv")
+# remotes::install_github("zabore/ezfun")
+
+library(survival)
+library(lubridate)
+library(ggsurvfit)
+library(gtsummary)
+library(tidycmprsk)
+library(condsurv)
+
+```
 
 
+## Lung Dataset
 
+The `lung` dataset is from {survival} package.
+
+- time: observed survival time in days
+- status: censoring status, 1= censored, 2= dead
+- sex: 1= male, 2= female
+
+standard practice is to have 1= event, 0= censored
+
+status == event
+
+```{r}
+# head(lung$status)
+
+lung = lung %>% 
+  mutate(status = dplyr::recode(status, `1` = 0, `2` = 1) )
+
+head( lung[ , c('time','status','sex')])
+```
 
 
 
