@@ -379,6 +379,71 @@ coxph(
 
 
 
+## Time dependent covariate approach
+
+An alternative to a landmark analysis is incorporation of a time-dependent covariate. This may be more appropriate than landmark analysis when:
+
+- the value of a covariate is changing over time
+- there is not an obvious landmark time
+- use of a landmark would lead to many exclusions
+
+Analysis of time-dependent covariates requires setup of a special dataset, in a format known as counting process format. 
+
+needed to create the special dataset:
+
+- create an ID variable called my_id:
+- tmerge() creates a long dataset with multiple time intervals for the different covariate values for each patient
+- event() creates the new event indicator to go with the newly created time intervals
+- tdc() creates the time-dependent covariate indicator to go with the newly created time intervals
+
+```{r}
+# BMT = rowid_to_column(BMT, 'my_id')
+time_dep_data = tmerge(
+  data1 = BMT %>% select(my_id, t1, delta1),
+  data2 = BMT %>% select(my_id, t1, delta1, ta, delta_a),
+  id = my_id,
+  death = event(t1, delta1),
+  agvhd = tdc(ta)
+)
+
+time_dep_data
+
+```
+
+We see that patients 1 and 4 now have multiple rows of data because they both developed aGVHD at some point in time after baseline.
+
+Now we can analyze this time-dependent covariate as usual using Cox regression with coxph and an alteration to our use of Surv to include arguments to both time and time2:
+
+```{r}
+coxph(
+  Surv(time = tstart,
+       time2 = tstop,
+       event = death) ~ agvhd,
+  data = time_dep_data
+)
+```
+```{r}
+coxph(
+  Surv(time = tstart,
+       time2 = tstop,
+       event = death) ~ agvhd,
+  data = time_dep_data
+) %>% 
+  tbl_regression()
+```
+
+
+We find that acute graft versus host disease is not significantly associated with death using either landmark analysis or a time-dependent covariate.
+
+Often one will want to use landmark analysis for visualization of a single covariate, and Cox regression with a time-dependent covariate for univariable and multivariable modeling.
+
+
+
+
+
+
+
+
 
 
 
