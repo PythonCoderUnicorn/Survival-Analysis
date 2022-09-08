@@ -136,7 +136,7 @@ head( lung[ , c('time','status','sex')])
 
 
 
-## Survival objects & curves
+### Survival objects & curves
 
 The Kaplan-Meier method is the most common way to estimate survival times and probabilities. It is a non-parametric approach that results in a step function, where there is a step down each time an event occurs.
 
@@ -164,7 +164,7 @@ time: the timepoints at which the curve has a step, (1+ event occurred)
 surv: the estimate of survival at the corresponding time
 
 
-## Kaplan-Meier plots
+### Kaplan-Meier plots
 
 The {ggsurvfit} package works best if you create the survfit object using the included ggsurvfit::survfit2() function, which uses the same syntax to what we saw previously with survival::survfit(). The ggsurvfit::survfit2() tracks the environment from the function call, which allows the plot to have better default values for labeling and p-value reporting.
 
@@ -183,7 +183,7 @@ survfit2( Surv(time, status) ~ 1, data= lung) %>%
 
 
 
-## Estimating Survival
+### Estimating Survival
 
 One quantity often of interest in a survival analysis is the probability of surviving beyond a certain number of years, x.
 
@@ -209,7 +209,7 @@ survfit( Surv(time, status) ~ 1, data = lung) %>%
 
 
 
-## Estimating median survival
+### Estimating median survival
 
 Another quantity often of interest in a survival analysis is the average survival time, which we quantify using the median. Survival times are not expected to be normally distributed so the mean is not an appropriate summary.
 
@@ -222,23 +222,160 @@ We see the median survival time is 310 days
 
 
 
+### Comparing survival between groups
+
+We can conduct between-group significance tests using a log-rank test. The log-rank test equally weights observations over the entire follow-up time and is the most common way to compare survival times between groups.
+
+```{r}
+survdiff(Surv(time, status) ~ sex, data = lung)
+```
+We see that there was a significant difference in overall survival according to sex in the lung data, with a p-value of p = 0.001.
+
+
+### Cox Regression Model
+
+We may want to quantify an effect size for a single variable, or include more than one variable into a regression model to account for the effects of multiple variables.
+
+The Cox regression model is a semi-parametric model that can be used to fit univariable and multivariable regression models that have survival outcomes.
+
+$h(t)$ = hazard or instantaneous rate at which events occur
+$h_0(t)$ =underlying baseline hazard
+
+
+$h(t)$ = $h_0(t)$ exp($\beta_1$ * $X_i1$ + ... )
+
+
+key assumptions:
+
+- non-informative censoring
+- proportional hazards 
+
+```{r}
+coxph( Surv(time, status) ~ sex, data = lung)
+```
+
+The quantity of interest from a Cox regression model is a hazard ratio (HR). The HR represents the ratio of hazards between two groups at any particular point in time. The HR is interpreted as the instantaneous rate of occurrence of the event of interest in those who are still at risk for the event. It is not a risk, though it is commonly misinterpreted as such. If you have a regression parameter β, then HR = exp(β).
+
+`HR < 1` indicates reduced hazard of death
+`HR > 1` indicates an increased hazard of death
+
+```{r}
+coxph(Surv(time, status) ~ sex, data = lung) %>% 
+  tbl_regression(exp = TRUE)
+```
+
+
+HR = 0.59, p-value= 0.001
+
+0.59 times as many females are dying as males at any given time
+{females have a significantly lower hazard of death than males in this data}
+
+
+> The analyses so far has relied on the covariate being measured at baseline, that is, before follow-up time for the event begins. Next part measures covariate after follow uo time
 
 
 
 
+# Analysis & Time Dependent Covariates
+
+Overall survival is measured from treatment start, and interest is in the association between complete response to treatment and survival.
+
+possible covariates of interest in cancer research that may not be measured at baseline include:
+
+- transplant failure
+- graft versus host disease
+- second resection
+- adjuvant therapy
+- compliance
+- adverse events
+
+
+## The BMT dataset
+
+This section we will use the BMT dataset from {SemiCompRisks} package as an example dataset. The data consist of 137 bone marrow transplant patients. Variables of interest include:
+
+- `T1` time (in days) to death or last follow-up
+- `delta1` death indicator; 1= Dead, 0= Alive
+- `TA` time (in days) to acute graft-versus-host disease
+- `deltaA` acute graft-versus-host disease indicator; 
+    - 1 = Developed acute graft-versus-host disease
+    - 0 = Never developed acute graft-versus-host disease
+
+```{r}
+# install.packages("SemiCompRisks")
+data(BMT, package = 'SemiCompRisks')
+
+# head(BMT [ ,c('T1','delta1','TA','deltaA')] )
+
+BMT = BMT %>% janitor::clean_names()
+```
 
 
 
+## Landmark Approach
+
+1. Select a fixed time after baseline as your landmark time. Note: this should be done based on clinical information, prior to data inspection
+
+2. Subset population for those followed at least until landmark time. Note: always report the number excluded due to the event of interest or censoring prior to the landmark time.
+
+3. Calculate follow-up from landmark time and apply traditional log-rank tests or Cox regression.
 
 
+In the BMT data, interest is in the association between **acute graft versus host disease (aGVHD)** and **survival**. But aGVHD is assessed after the transplant, which is our baseline, or start of follow-up, time.
 
 
+### Steps
+
+STEP 1:
+
+Typically aGVHD occurs within the first 90 days following transplant, so we use a 90-day landmark.
+
+STEP 2:
+
+Subset population for those followed at least until landmark time
+
+```{r}
+# T1 is time in days
+landmark_data = BMT %>%
+  select(t1, delta1, delta_a, ta) %>% 
+  dplyr::filter(t1 >= 90)
+ # exclude patients before 90 days
+
+```
 
 
+STEP 3:
 
+Calculate follow-up time from landmark and apply traditional methods.
 
+```{r}
+landmark_data = landmark_data %>%
+  mutate( lm_T1 = t1 - 90)
+```
 
+```{r}
+survfit2( Surv(lm_T1, delta1) ~ delta_a, data= landmark_data)
+```
 
+```{r}
+survfit2( Surv(lm_T1, delta1) ~ delta_a, data= landmark_data) %>% 
+  ggsurvfit()+
+  labs(x="Days from 90 day landmark",
+       y="Overall survival probability")+
+  # add_risktable()+
+  ggdark::dark_mode()
+```
+
+In Cox regression you can use the subset option in coxph to exclude those patients who were not followed through the landmark time, and we can view the results using the tbl_regression() function from the {gtsummary} package:
+
+```{r}
+coxph(
+  Surv(t1, delta1) ~ delta_a,
+  subset = t1 >= 90,
+  data = BMT
+) %>% 
+  tbl_regression()
+```
 
 
 
