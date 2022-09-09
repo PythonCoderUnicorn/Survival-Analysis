@@ -396,10 +396,10 @@ needed to create the special dataset:
 - event() creates the new event indicator to go with the newly created time intervals
 - tdc() creates the time-dependent covariate indicator to go with the newly created time intervals
 
-```{r}
+```{r eval=FALSE}
 # BMT = rowid_to_column(BMT, 'my_id')
 time_dep_data = tmerge(
-  data1 = BMT %>% select(my_id, t1, delta1),
+  data1 = BMT %>% select(my_id, t1, delta1) ,
   data2 = BMT %>% select(my_id, t1, delta1, ta, delta_a),
   id = my_id,
   death = event(t1, delta1),
@@ -414,7 +414,7 @@ We see that patients 1 and 4 now have multiple rows of data because they both de
 
 Now we can analyze this time-dependent covariate as usual using Cox regression with coxph and an alteration to our use of Surv to include arguments to both time and time2:
 
-```{r}
+```{r, eval=FALSE}
 coxph(
   Surv(time = tstart,
        time2 = tstop,
@@ -422,7 +422,7 @@ coxph(
   data = time_dep_data
 )
 ```
-```{r}
+```{r, eval=FALSE}
 coxph(
   Surv(time = tstart,
        time2 = tstop,
@@ -436,6 +436,51 @@ coxph(
 We find that acute graft versus host disease is not significantly associated with death using either landmark analysis or a time-dependent covariate.
 
 Often one will want to use landmark analysis for visualization of a single covariate, and Cox regression with a time-dependent covariate for univariable and multivariable modeling.
+
+
+ERROR LINE 400 : Error in `select()` can't subset columns that don't exist {{BUT DOES!!!}}
+
+## Competing Risks
+
+We will use the Melanoma data from the {MASS} package to illustrate these concepts. It contains variables:
+
+- `time` survival time in days, possibly censored.
+- `status` 1= died from melanoma, 2= alive, 3 = dead from other causes.
+- `sex` 1 = male, 0 = female.
+- `age` age in years.
+- `year` of operation.
+- `thickness` tumor thickness in mm.
+- `ulcer` 1 = presence, 0 = absence.
+
+
+```{r}
+data(Melanoma, package = 'MASS')
+
+glimpse(Melanoma)
+```
+
+recode the status values
+status 0= alive, 1= died from melanoma, 2= dead from other causes.
+```{r}
+Melanoma = Melanoma %>% 
+  mutate( status = as.factor( dplyr::recode( status, `2`=0, `1`=1, `3`=2)))
+
+head(Melanoma)
+```
+
+
+
+### Cumulative incidence for competing risks
+
+
+
+
+
+
+
+
+
+
 
 
 
